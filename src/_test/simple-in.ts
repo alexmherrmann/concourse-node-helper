@@ -8,13 +8,12 @@ wrapIn<{ numba: string} >(async (input) => {
 
     return {
         version: {
-            ref: ref + numba
+            ref
         },
         metadata: [
             {
-                name: "woah",
-                value: "dude"
-
+                name: "numba",
+                value: numba
             }
         ]
     }

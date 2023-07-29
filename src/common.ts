@@ -1,5 +1,5 @@
 
-function readStdinAsPromise(maxSizeInBytes = 12 * 1024, timeoutInMilliseconds = 5000): Promise<string> {
+function readStdinAsPromise(maxSizeInBytes = 12 * 1024, timeoutInMilliseconds = 1000): Promise<string> {
     return new Promise((resolve, reject) => {
         let data = '';
         let bytesRead = 0;
@@ -107,7 +107,8 @@ export function wrapCheck<SOURCETYPE>(check: (input: CheckInput<SOURCETYPE>) => 
         const output = await check(parsedInput)
 
         // Write the output to stdout
-        process.stdout.write(JSON.stringify(output))
+        process.stdout.write(JSON.stringify(output), () => process.exit(0))
+
 
     }
 }
@@ -127,8 +128,7 @@ export function wrapIn<SOURCETYPE>(inFunc: (input: InInput<SOURCETYPE>) => Promi
         const output = await inFunc(parsedInput)
 
         // Write the output to stdout
-        process.stdout.write(JSON.stringify(output))
-
+        process.stdout.write(JSON.stringify(output), () => process.exit(0))
     }
 }
 
@@ -147,7 +147,7 @@ export function wrapOut<SOURCETYPE>(outFunc: (input: OutInput<SOURCETYPE>) => Pr
         const output = await outFunc(parsedInput)
 
         // Write the output to stdout
-        process.stdout.write(JSON.stringify(output))
+        process.stdout.write(JSON.stringify(output), () => process.exit(0))
 
     }
 

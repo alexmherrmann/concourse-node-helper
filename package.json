@@ -4,7 +4,7 @@
   "description": "Helpers for writing concourse resource types quickly",
   "main": "dist/index.js",
   "scripts": {
-    "test": "npm run build && npx jest",
+    "test": "npm run build && npx jest -i",
     "build": "tsc"
   },
   "repository": {

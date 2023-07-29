@@ -7,6 +7,8 @@ wrapOut<{numba: string}>(async (input) => {
     const { ref } = input.version
 
     const newRef = parseInt(ref) + 1
+
+    process.stderr.write(`newRef: ${newRef}`)
     return {
         version: {
             ref: newRef.toString()
