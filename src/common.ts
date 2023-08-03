@@ -95,7 +95,16 @@ export type OutOutput<SOURCETYPE> = {
 }
 
 
-export function wrapCheck<SOURCETYPE>(check: (input: CheckInput<SOURCETYPE>) => Promise<CheckOutput>): () => Promise<void> {
+export type Context = {
+    logit(msg: string): Promise<void>
+}
+
+const priCtx: Context = {
+    logit: (msg: string) => new Promise((resolve, reject) => {
+        process.stderr.write(msg + "\n", () => resolve())
+    })
+}
+export function wrapCheck<SOURCETYPE>(check: (input: CheckInput<SOURCETYPE>, ctx: Context) => Promise<CheckOutput>): () => Promise<void> {
     return async () => {
         // read the input from stdin
         const input = await readStdinAsPromise()
@@ -104,7 +113,7 @@ export function wrapCheck<SOURCETYPE>(check: (input: CheckInput<SOURCETYPE>) => 
         const parsedInput: CheckInput<SOURCETYPE> = JSON.parse(input)
 
         // Run the check function
-        const output = await check(parsedInput)
+        const output = await check(parsedInput, priCtx)
 
         // Write the output to stdout
         process.stdout.write(JSON.stringify(output), () => process.exit(0))
@@ -113,11 +122,11 @@ export function wrapCheck<SOURCETYPE>(check: (input: CheckInput<SOURCETYPE>) => 
     }
 }
 
-export function wrapIn<SOURCETYPE>(inFunc: (input: InInput<SOURCETYPE>) => Promise<InOutput>): () => Promise<void> {
+export function wrapIn<SOURCETYPE>(inFunc: (input: InInput<SOURCETYPE>, ctx: Context) => Promise<InOutput>): () => Promise<void> {
     return async () => {
         logit(`Changing to ${process.argv[2]}`)
         process.chdir(process.argv[2])
-        
+
         // read the input from stdin
         const input = await readStdinAsPromise()
 
@@ -125,14 +134,14 @@ export function wrapIn<SOURCETYPE>(inFunc: (input: InInput<SOURCETYPE>) => Promi
         const parsedInput: InInput<SOURCETYPE> = JSON.parse(input)
 
         // Run the check function
-        const output = await inFunc(parsedInput)
+        const output = await inFunc(parsedInput, priCtx)
 
         // Write the output to stdout
         process.stdout.write(JSON.stringify(output), () => process.exit(0))
     }
 }
 
-export function wrapOut<SOURCETYPE>(outFunc: (input: OutInput<SOURCETYPE>) => Promise<OutOutput<SOURCETYPE>>): () => Promise<void> {
+export function wrapOut<SOURCETYPE>(outFunc: (input: OutInput<SOURCETYPE>, ctx: Context) => Promise<OutOutput<SOURCETYPE>>): () => Promise<void> {
     return async () => {
         logit(`Changing to ${process.argv[2]}`)
         process.chdir(process.argv[2])
@@ -144,7 +153,7 @@ export function wrapOut<SOURCETYPE>(outFunc: (input: OutInput<SOURCETYPE>) => Pr
         const parsedInput: OutInput<SOURCETYPE> = JSON.parse(input)
 
         // Run the check function
-        const output = await outFunc(parsedInput)
+        const output = await outFunc(parsedInput, priCtx)
 
         // Write the output to stdout
         process.stdout.write(JSON.stringify(output), () => process.exit(0))
